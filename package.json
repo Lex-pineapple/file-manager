@@ -5,9 +5,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js -- --username=Name",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix ./*.js"
+    "start": "node src/index.js",
+    "demo": "node src/index.js --username=DefaultName"
   },
   "repository": {
     "type": "git",

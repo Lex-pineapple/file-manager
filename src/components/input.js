@@ -25,12 +25,12 @@ class Input {
       output: process.stdout,
     })
 
-    rl.on('line', (input) => {
+    rl.on('line', async (input) => {
       if (input === '.exit') {
         this.close(rl);
       } else {
         const uInput = this.parseInput(input);
-        this.delegate(uInput);
+        await this.delegate(uInput);
         CustomOutput.logPath(this.dir.currDir);
       }
     });
@@ -62,13 +62,18 @@ class Input {
     }
   }
 
-  delegate(op) {
+  // TODO: Fix switching to error om abundant args
+  async delegate(op) {
     switch (op.command) {
       case 'os':
         this.sysInfo.getInfo(op.args);
         break;
       case 'ls':
-        !op.args && this.dir.list();
+        !op.args && await this.dir.list();
+        break;
+      case 'up':
+        !op.args && this.dir.upDir();
+        break;
       default:
         CustomOutput.logError('Invalid input');
         break;

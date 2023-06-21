@@ -1,4 +1,5 @@
-import { fileURLToPath } from'url';
+import { fileURLToPath } from 'url';
+import path from 'node:path';
 import fsPromises from 'fs/promises';
 import os from 'os';
 import CustomOutput from '../utils/CustomOutput.js';
@@ -18,6 +19,18 @@ class DirMgmt {
 
   static filename() {
     return fileURLToPath(import.meta.url);
+  }
+
+  upDir() {
+    const currDirArr = this._currDir.split(path.sep);
+    if (currDirArr.length > 1) {
+      currDirArr.pop();
+      this.currDir = currDirArr.join(path.sep);
+    }
+  }
+
+  browseDir(path) {
+
   }
 
   parseDirectoryList(files) {

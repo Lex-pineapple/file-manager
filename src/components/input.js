@@ -1,11 +1,13 @@
 import readline from 'node:readline';
 import SysInfo from './sysInfo.js'
 import CustomOutput from '../utils/CustomOutput.js';
+import DirMgmt from './dirMgmt.js';
 
 class Input {
   constructor() {
     this.sysInfo = new SysInfo();
     this._username = null;
+    this.dir = new DirMgmt();
   }
 
   /**
@@ -16,10 +18,11 @@ class Input {
   }
 
   start() {
+    // dir.currDir = DirMgmt.initDir();
+    CustomOutput.logPath(this.dir.currDir);
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
-      prompt: '>',
     })
 
     rl.on('line', (input) => {
@@ -28,6 +31,7 @@ class Input {
       } else {
         const uInput = this.parseInput(input);
         this.delegate(uInput);
+        CustomOutput.logPath(this.dir.currDir);
       }
     });
 
@@ -63,6 +67,8 @@ class Input {
       case 'os':
         this.sysInfo.getInfo(op.args);
         break;
+      case 'ls':
+        !op.args && this.dir.list();
       default:
         CustomOutput.logError('Invalid input');
         break;

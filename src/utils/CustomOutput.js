@@ -15,6 +15,8 @@ class CustomOutput {
         return(`\x1b[34m${message}\x1b[0m`);
       case 'magenta': 
         return(`\x1b[35m${message}\x1b[0m`);
+      case 'cyan':
+        return(`\x1b[36m${message}\x1b[0m`);
       case 'gray':
         return(`\x1b[90m${message}\x1b[0m`);
       default:
@@ -32,6 +34,10 @@ class CustomOutput {
 
   static logError(message) {
     process.stdout.write(this.coloredLine(message, 'red') + '\n');
+  }
+
+  static logPath(message) {
+    process.stdout.write(`  You are currently in ${this.coloredLine(message, 'cyan')}\n`);
   }
 
   static _createWarning(message) {

@@ -1,4 +1,5 @@
 import ParseVariables from '../utils/parseVariables.js';
+import CustomOutput from '../utils/CustomOutput.js';
 
 class User {
   constructor() {
@@ -6,8 +7,10 @@ class User {
   }
   
   printUsername() {
-    if (!this.username) process.stdout.write('(file-manager-v1.0.0) Warning: No username was provided.\nWelcome to the File Manager.')
-    else process.stdout.write(`Welcome to the File Manager, ${this.username}`);
+    if (!this.username) {
+      CustomOutput.logWarning('No username was provided');
+      process.stdout.write('Welcome to the File Manager.\n');
+    } else process.stdout.write(`Welcome to the File Manager, ${CustomOutput.coloredLine(this.username, 'green')}\n`);
   }
 }
 

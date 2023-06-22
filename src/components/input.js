@@ -74,6 +74,9 @@ class Input {
       case 'up':
         !op.args && this.dir.upDir();
         break;
+      case 'cd':
+        await this.dir.browseDir(op.args);
+        break;
       default:
         CustomOutput.logError('Invalid input');
         break;

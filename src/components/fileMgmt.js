@@ -3,11 +3,29 @@ import DirMgmt from "./dirMgmt.js";
 import fs from 'fs';
 
 class FileMgmt {
-  async readFile(pathToFile) {
+  async delegate(op, currPath) {
+    switch (op.command) {
+      case 'cat':
+        await this.readFile(op.args[0], currPath);
+        break;
+      case 'add':
+        break;
+      case 'rn':
+        break;
+      case 'cp':
+        break;
+      case 'mv':
+        break;
+      case 'rm':
+        break;
+      default:
+        break;
+    }
+  }
+
+  async readFile(pathToFile, currDir) {
     try {
-      console.log(pathToFile, pathToFile[0]);
-      const detPath = DirMgmt.determinePath(pathToFile[0]);
-      console.log(detPath);
+      const detPath = await DirMgmt.determinePath(currDir, pathToFile);
       const rs = fs.createReadStream(detPath, 'utf-8');
       let data = '';
       rs.on('data', chunk => data += chunk);

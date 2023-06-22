@@ -52,7 +52,9 @@ class Input {
   }
 
   parseInput(input) {
-    const inputArr = input.split(' ');
+    // const inputArr = input.split(' ');
+    const inputArr = input.match(/(("|').*?("|')|[^"\s]+)+(?=\s*|\s*$)/g);
+    if (!inputArr) return 0;
     if (inputArr.length > 1) {
       return {
         command: inputArr[0],
@@ -67,33 +69,13 @@ class Input {
   async delegate(op) {
     try {
       if (CmdValidator.validateInput(op, commandSheet)) {
-
+        if (commandSheet[op.command].op_cat === 'op') {
+          this.sysInfo.getInfo(op.args);
+        } else await this.dir.delegate(op);
       } else throw new Error('Invalid input');
     } catch (error) {
       CustomOutput.logError(error.message);
     }
-
-    // if (op.command === 'os') {
-    // } else if (op.command )
-    // switch (op.command) {
-    //   case 'os':
-    //     break;
-    //   case 'ls':
-    //     !op.args && await this.dir.list();
-    //     break;
-    //   case 'up':
-    //     !op.args && this.dir.upDir();
-    //     break;
-    //   case 'cd':
-    //     await this.dir.browseDir(op.args);
-    //     break;
-    //   case 'cat':
-    //     await this.fileMgmt.readFile(op.args);
-    //     break;
-    //   default:
-    //     CustomOutput.logError('Invalid input');
-    //     break;
-    // }
   }
 }
 

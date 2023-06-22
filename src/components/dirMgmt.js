@@ -5,6 +5,7 @@ import fsPromises from 'fs/promises';
 import os from 'os';
 import CustomOutput from '../utils/CustomOutput.js';
 import FileMgmt from './fileMgmt.js';
+import commandSheet from '../constants/commandSheet.js';
 
 class DirMgmt {
   constructor() {
@@ -18,6 +19,39 @@ class DirMgmt {
 
   get currDir() {
     return this._currDir;
+  }
+
+  async delegate(op) {
+    switch (commandSheet[op.command].op_cat) {
+      case 'nav':
+        await this.delegateNav(op);
+        break;
+      case 'fileOs':
+        await this.fileMgmt.delegate(op, this.currDir);
+        break;
+      case 'hash':
+        break;
+      case 'archv':
+        break;
+      default:
+        break;
+    }
+  }
+
+  async delegateNav(op) {
+    switch (op.command) {
+      case 'ls': 
+        await this.list();
+        break;
+      case 'up':
+        this.upDir();
+        break;
+      case 'cd':
+        await this.browseDir(op.args[0]);
+        break;
+      default:
+        break;
+    }
   }
 
   static filename() {
@@ -35,38 +69,33 @@ class DirMgmt {
 
   async browseDir(location) {
     try {
-      if (!location || location.length > 1) throw new Error('The path is incorrect');
-      if (location[0].split('/').length > 1 || location[0].split(path.sep).length > 1) {
-        const fullPathExists = await this.validatePath(location[0]);
-        const pathExists = await this.validatePath(path.join(this.currDir, location[0]));
-        if (pathExists) this.currDir = path.join(this.currDir, location[0]);
-        else if (fullPathExists) this.currDir = location[0];
-        else throw new Error('The path is incorrect');
-      } else {
-        const newPath = path.join(this.currDir, location[0]);
-        const pathExists = await this.validatePath(newPath);
-        if (pathExists) this.currDir = newPath;
-        else throw new Error('The path is incorrect');
-      }
+      this.currDir = await DirMgmt.determinePath(this.currDir, location);
     } catch (error) {
       CustomOutput.logError(error.message)
     }
   }
 
+  //TODO: fix case sensitivity
   static async determinePath(currDir, location) {
+    location = this.fixQuotes(location);
     if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
-      const fullPathExists = await this.validatePath(location);
-      const pathExists = await this.validatePath(path.join(this.currDir, location));
-      if (pathExists) return path.join(this.currDir, location[0]);
+      const fullPathExists = await DirMgmt.validatePath(location);
+      const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
+      if (pathExists) return path.join(currDir, location[0]);
       else if (fullPathExists) return location;
       else throw new Error('The path is incorrect');
     } else {
-      console.log(this.currDir, location);
-      const newPath = path.join(this.currDir, location);
-      const pathExists = await this.validatePath(newPath);
+      const newPath = path.join(currDir, location);
+      const pathExists = await DirMgmt.validatePath(newPath);
       if (pathExists) return newPath;
       else throw new Error('The path is incorrect');
     }
+  }
+
+  static fixQuotes(location) {
+    let newLocation = location;
+    if (location.includes('"') || location.includes("'")) newLocation = location.replace(/['"]+/g, '');
+    return newLocation;
   }
 
   static async validatePath(path) {
@@ -76,12 +105,18 @@ class DirMgmt {
   parseDirectoryList(files) {
     let returnList = [];
     for (const item of files) {
-      const fileType = item.isDirectory() ? 'directory' : 'file';
-      returnList.push({ name: item.name , type: fileType })
+      const fileType = this.determineFileType(item);
+      if (fileType) returnList.push({ name: item.name , type: fileType })
     }
     returnList = this.sortList(returnList);
     returnList = this.splitLines(returnList);
     return returnList;
+  }
+
+  determineFileType(item) {
+    if (item.isDirectory()) return 'directory';
+    if (item.isFile()) return 'file';
+    if (item.isSymbolicLink()) return false;
   }
 
   sortList(list) {
@@ -118,8 +153,6 @@ class DirMgmt {
   async list() {
     try {
       const files = await fsPromises.readdir(this.currDir, { withFileTypes: true });
-      console.log('current directory to read', this.currDir);
-      console.log('files', files);
       this.parseDirectoryList(files)
       console.table(this.parseDirectoryList(files));
     } catch (error) {

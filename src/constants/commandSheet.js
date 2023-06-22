@@ -30,9 +30,9 @@ const commandSheet = {
   'cat': {
     op_cat: 'fileOs',
     op_name: 'cat',
-    args_num: 0,
+    args_num: 1,
     args_type: null,
-    args: []
+    args: ['path_to_file']
   },
   'add': {
     op_cat: 'fileOs',

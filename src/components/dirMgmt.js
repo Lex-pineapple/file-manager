@@ -4,10 +4,12 @@ import { constants } from 'buffer';
 import fsPromises from 'fs/promises';
 import os from 'os';
 import CustomOutput from '../utils/CustomOutput.js';
+import FileMgmt from './fileMgmt.js';
 
 class DirMgmt {
   constructor() {
     this._currDir = os.homedir();
+    this.fileMgmt = new FileMgmt();
   }
 
   set currDir(path) {
@@ -51,7 +53,23 @@ class DirMgmt {
     }
   }
 
-  async validatePath(path) {
+  static async determinePath(currDir, location) {
+    if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
+      const fullPathExists = await this.validatePath(location);
+      const pathExists = await this.validatePath(path.join(this.currDir, location));
+      if (pathExists) return path.join(this.currDir, location[0]);
+      else if (fullPathExists) return location;
+      else throw new Error('The path is incorrect');
+    } else {
+      console.log(this.currDir, location);
+      const newPath = path.join(this.currDir, location);
+      const pathExists = await this.validatePath(newPath);
+      if (pathExists) return newPath;
+      else throw new Error('The path is incorrect');
+    }
+  }
+
+  static async validatePath(path) {
     return fsPromises.access(path, constants.R_OK).then(() => true).catch(() => false);
   }
 

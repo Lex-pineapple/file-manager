@@ -2,6 +2,8 @@ import readline from 'node:readline';
 import SysInfo from './sysInfo.js'
 import CustomOutput from '../utils/CustomOutput.js';
 import DirMgmt from './dirMgmt.js';
+import commandSheet from '../constants/commandSheet.js';
+import CmdValidator from '../utils/CmdValidator.js';
 
 class Input {
   constructor() {
@@ -62,25 +64,36 @@ class Input {
     }
   }
 
-  // TODO: Fix switching to error om abundant args
   async delegate(op) {
-    switch (op.command) {
-      case 'os':
-        this.sysInfo.getInfo(op.args);
-        break;
-      case 'ls':
-        !op.args && await this.dir.list();
-        break;
-      case 'up':
-        !op.args && this.dir.upDir();
-        break;
-      case 'cd':
-        await this.dir.browseDir(op.args);
-        break;
-      default:
-        CustomOutput.logError('Invalid input');
-        break;
+    try {
+      if (CmdValidator.validateInput(op, commandSheet)) {
+
+      } else throw new Error('Invalid input');
+    } catch (error) {
+      CustomOutput.logError(error.message);
     }
+
+    // if (op.command === 'os') {
+    // } else if (op.command )
+    // switch (op.command) {
+    //   case 'os':
+    //     break;
+    //   case 'ls':
+    //     !op.args && await this.dir.list();
+    //     break;
+    //   case 'up':
+    //     !op.args && this.dir.upDir();
+    //     break;
+    //   case 'cd':
+    //     await this.dir.browseDir(op.args);
+    //     break;
+    //   case 'cat':
+    //     await this.fileMgmt.readFile(op.args);
+    //     break;
+    //   default:
+    //     CustomOutput.logError('Invalid input');
+    //     break;
+    // }
   }
 }
 

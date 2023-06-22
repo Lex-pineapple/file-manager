@@ -2,31 +2,9 @@ import os from 'node:os';
 import CustomOutput from '../utils/CustomOutput.js';
 
 class SysInfo {
-  constructor() {
-    this.args = {
-      '--EOL': Boolean,
-      '--cpus': Boolean,
-      '--homedir': Boolean,
-      '--username': Boolean,
-      '--architecture': Boolean
-    }
-  }
-
-  validate(args) {
-    if (!args) return false; 
-    for (let i = 0; i < args.length; i++) {
-      if (!(args[i] in this.args)) return false;
-    }
-    return true;
-  }
-
   getInfo(args) {
-    if (this.validate(args)) {
-      for (let i = 0; i < args.length; i++) {
-        this.printInfo(args[i]);
-      }
-    } else {
-      CustomOutput.logError('Invalid input');
+    for (let i = 0; i < args.length; i++) {
+      this.printInfo(args[i]);
     }
   }
 

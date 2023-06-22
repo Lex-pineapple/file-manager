@@ -62,9 +62,15 @@ class DirMgmt {
     const currDirArr = this._currDir.split(path.sep);
     if (currDirArr.length > 1) {
       currDirArr.pop();
-      if (currDirArr[currDirArr.length - 1].charAt(currDirArr[currDirArr.length - 1].length - 1) === ':') this.currDir = currDirArr[currDirArr.length - 1] + '\\';
-      else this.currDir = currDirArr.join(path.sep);
+      this.currDir = DirMgmt.fixBackSlash(currDirArr);
+      // if (currDirArr[currDirArr.length - 1].charAt(currDirArr[currDirArr.length - 1].length - 1) === ':') this.currDir = currDirArr[currDirArr.length - 1] + '\\';
+      // else this.currDir = currDirArr.join(path.sep);
     }
+  }
+
+  static fixBackSlash(currDirArr) {
+    if (currDirArr[currDirArr.length - 1].charAt(currDirArr[currDirArr.length - 1].length - 1) === ':') return currDirArr[currDirArr.length - 1] + '\\';
+    else return currDirArr.join(path.sep);
   }
 
   async browseDir(location) {
@@ -73,6 +79,25 @@ class DirMgmt {
     } catch (error) {
       CustomOutput.logError(error.message)
     }
+  }
+
+  static async checkNewPath(currDir, location) {
+    let inputPathFw = location.split('/');
+    let inputPathBw = location.split(path.sep);
+    if (inputPathFw && inputPathFw.length > 1) {
+      const path2 = inputPathFw.pop();
+      console.log('inputPathFw', inputPathFw);
+      inputPathFw = DirMgmt.fixBackSlash(inputPathFw);
+      const detPath = await this.determinePath(currDir, inputPathFw);
+      if (detPath) return path.join(detPath, path2);
+      else return false;
+    } else if (inputPathBw && inputPathBw.length > 1) {
+      const path2 = inputPathBw.pop();
+      inputPathBw = DirMgmt.fixBackSlash(inputPathBw);
+      const detPath = await this.determinePath(currDir, inputPathBw);
+      if (detPath) return path.join(detPath, path2);
+      else return false;
+    } return path.join(currDir, location);
   }
 
   //TODO: fix case sensitivity

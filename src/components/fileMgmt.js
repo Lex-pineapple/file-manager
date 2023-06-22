@@ -1,6 +1,8 @@
 import CustomOutput from "../utils/CustomOutput.js";
 import DirMgmt from "./dirMgmt.js";
 import fs from 'fs';
+import fsPromises from 'fs/promises';
+import path from 'path';
 
 class FileMgmt {
   async delegate(op, currPath) {
@@ -9,6 +11,7 @@ class FileMgmt {
         await this.readFile(op.args[0], currPath);
         break;
       case 'add':
+        await this.createFile(op.args[0], currPath);
         break;
       case 'rn':
         break;
@@ -36,6 +39,16 @@ class FileMgmt {
     }
   }
 
+  async createFile(pathToFile, currDir) {
+    const toCreatePath = await DirMgmt.checkNewPath(currDir, pathToFile);
+    console.log(toCreatePath);
+    // fs.open(toCreatePath, 'wx', (err, fd) => {
+    //   console.error(err);
+    //   fs.close(fd, (err) => {
+    //     console.error(err);
+    //   })
+    // })
+  }
 
 }
 

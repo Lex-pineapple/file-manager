@@ -63,8 +63,6 @@ class DirMgmt {
     if (currDirArr.length > 1) {
       currDirArr.pop();
       this.currDir = DirMgmt.fixBackSlash(currDirArr);
-      // if (currDirArr[currDirArr.length - 1].charAt(currDirArr[currDirArr.length - 1].length - 1) === ':') this.currDir = currDirArr[currDirArr.length - 1] + '\\';
-      // else this.currDir = currDirArr.join(path.sep);
     }
   }
 
@@ -81,23 +79,18 @@ class DirMgmt {
     }
   }
 
-  static async checkNewPath(currDir, location) {
-    let inputPathFw = location.split('/');
-    let inputPathBw = location.split(path.sep);
-    if (inputPathFw && inputPathFw.length > 1) {
-      const path2 = inputPathFw.pop();
-      console.log('inputPathFw', inputPathFw);
-      inputPathFw = DirMgmt.fixBackSlash(inputPathFw);
-      const detPath = await this.determinePath(currDir, inputPathFw);
-      if (detPath) return path.join(detPath, path2);
-      else return false;
-    } else if (inputPathBw && inputPathBw.length > 1) {
-      const path2 = inputPathBw.pop();
-      inputPathBw = DirMgmt.fixBackSlash(inputPathBw);
-      const detPath = await this.determinePath(currDir, inputPathBw);
-      if (detPath) return path.join(detPath, path2);
-      else return false;
-    } return path.join(currDir, location);
+  static async fixNewPath(currDir, location) {
+    location = this.fixQuotes(location);
+    const newLocation = location.split('/').length > 1 ? location.split('/') : location.split(path.sep).length > 1 ? location.split(path.sep) : false;
+    if (newLocation) {
+      const fileName = newLocation.pop();
+      if (fileName) {
+        const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
+        const detPath = await this.determinePath(currDir, joinedNewLocation);
+        return detPath ? path.join(detPath, fileName) : false;
+      } return false;
+    }
+    return path.join(currDir, location);
   }
 
   //TODO: fix case sensitivity

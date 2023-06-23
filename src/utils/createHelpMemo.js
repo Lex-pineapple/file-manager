@@ -1,3 +1,6 @@
+// import CustomOutput from "./CustomOutput.js";
+// import commandSheet from "../constants/commandSheet.js";
+
 const commandSheet = {
   'os': {
     op_cat: 'os',
@@ -176,3 +179,30 @@ const commandSheet = {
 }
 
 export default commandSheet;
+
+function CreateHelpMemo(commandSheet) {
+  let helpString = '';
+  helpString += 'Usage: [command] [options]\n\n';
+  for (const [key, value] of Object.entries(commandSheet)) {
+    if (value.args_type === 'static') {
+      helpString += `Options:\n`;
+      for (const [key1, value1] of Object.entries(value.details.args)) {
+        helpString += `  ${key1}     ${value1}\n`
+      }
+    }
+    if (value.args_num > 0) {
+      if (value.args_type === 'static') {
+      helpString += `   ${key}    [options]    ${value.details.description}\n`;
+
+      } else {
+        helpString += `   ${key}    ${value.args.reduce((acc, currVal) => '['+acc+']' + ' ['+currVal+']')}    ${value.details.description}\n`;
+      }
+    }
+    // helpString += `  ${key}    ${value.details.description}\n`
+  }
+  return helpString;
+}
+
+console.log(CreateHelpMemo(commandSheet));
+
+// export default CreateHelpMemo;

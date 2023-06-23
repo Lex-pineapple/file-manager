@@ -6,11 +6,15 @@ import os from 'os';
 import CustomOutput from '../utils/CustomOutput.js';
 import FileMgmt from './fileMgmt.js';
 import commandSheet from '../constants/commandSheet.js';
+import Hash from './hash.js';
+import Archive from './archive.js';
 
 class DirMgmt {
   constructor() {
     this._currDir = os.homedir();
     this.fileMgmt = new FileMgmt();
+    this.hash = new Hash();
+    this.archv = new Archive();
   }
 
   set currDir(path) {
@@ -30,8 +34,10 @@ class DirMgmt {
         await this.fileMgmt.delegate(op, this.currDir);
         break;
       case 'hash':
+        await this.hash.calcHash(op.args[0], this.currDir);
         break;
       case 'archv':
+        await this.archv.delegate(op, this.currDir);
         break;
       default:
         break;
@@ -116,19 +122,21 @@ class DirMgmt {
 
   //TODO: fix case sensitivity
   static async determinePath(currDir, location) {
-    location = this.fixQuotes(location);
-    if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
-      const fullPathExists = await DirMgmt.validatePath(location);
-      const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
-      if (pathExists) return path.join(currDir, location);
-      else if (fullPathExists) return location;
-      else throw new Error('The path is incorrect');
-    } else {
-      const newPath = path.join(currDir, location);
-      const pathExists = await DirMgmt.validatePath(newPath);
-      if (pathExists) return newPath;
-      else throw new Error('The path is incorrect');
-    }
+    if (currDir !== undefined && location !== undefined) {
+      location = this.fixQuotes(location);
+      if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
+        const fullPathExists = await DirMgmt.validatePath(location);
+        const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
+        if (pathExists) return path.join(currDir, location);
+        else if (fullPathExists) return location;
+        else throw new Error('The path is incorrect');
+      } else {
+        const newPath = path.join(currDir, location);
+        const pathExists = await DirMgmt.validatePath(newPath);
+        if (pathExists) return newPath;
+        else throw new Error('The path is incorrect');
+      }
+    } else throw new Error('The path is incorrect');
   }
 
   static fixQuotes(location) {

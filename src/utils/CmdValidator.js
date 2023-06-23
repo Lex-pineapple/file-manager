@@ -3,7 +3,7 @@ class CmdValidator {
     if (!args && cmdSheedOp.args_num === 0) {
       return true;
     }
-    if (args && args.length <= cmdSheedOp.args_num) {
+    if (args && args.length == cmdSheedOp.args_num) {
       return true;
     }
     return false;
@@ -11,7 +11,7 @@ class CmdValidator {
 
   static deepValidateArgs(args, cmdSheedOp) {
     let valid = true;
-    if (this.validateArgs(args, cmdSheedOp)) {
+    if ((!args && cmdSheedOp.args_num === 0) || (args && args.length <= cmdSheedOp.args_num)) {
       for (let i = 0; i < args.length; i++) {
         if (!cmdSheedOp.args.includes(args[i])) {
           valid = false;

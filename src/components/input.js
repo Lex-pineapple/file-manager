@@ -51,10 +51,12 @@ class Input {
     rl.close();
   }
 
+  // TODO: FIX ON PATH nodejs/"sp sp" - error
   parseInput(input) {
     // const inputArr = input.split(' ');
     const inputArr = input.match(/(("|').*?("|')|[^"\s]+)+(?=\s*|\s*$)/g);
     if (!inputArr) return 0;
+    console.log(inputArr);
     if (inputArr.length > 1) {
       return {
         command: inputArr[0],

@@ -28,6 +28,10 @@ class CustomOutput {
     process.stdout.write(this.coloredMessage(message, contents, 'yellow'));
   }
 
+  static logColoredMessage(message, color) {
+    process.stdout.write(this.coloredLine(message, color) + '\n');
+  }
+
   static logWarning(message) {
     process.stdout.write(this.coloredLine(this._createWarning(message), 'gray') + '\n');
   }

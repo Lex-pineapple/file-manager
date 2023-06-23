@@ -17,11 +17,14 @@ class FileMgmt {
         await this.renameFile(op.args[0], currPath, op.args[1]);
         break;
       case 'cp':
-        await this.copyFile(op.args[0], op.args[1], currPath);
+        await this.moveFile(op.args[0], op.args[1], currPath, true);
+        // await this.copyFile(op.args[0], op.args[1], currPath);
         break;
       case 'mv':
+        await this.moveFile(op.args[0], op.args[1], currPath, false);
         break;
       case 'rm':
+        await this.deleteFile(op.args[0], currPath);
         break;
       default:
         break;
@@ -65,7 +68,7 @@ class FileMgmt {
     }
   }
 
-  async copyFile(pathToFile, newPath, currDir) {
+  async moveFile(pathToFile, newPath, currDir, cp) {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
     // console.log('detPathToFile', detPathToFile);
     const detNewPath = await DirMgmt.determinePath(currDir, newPath);
@@ -73,22 +76,30 @@ class FileMgmt {
     const fileName = DirMgmt.getFilename(pathToFile);
     // console.log('fileName', fileName);
     const newPathExists = await DirMgmt.validatePath(path.join(detNewPath, fileName));
-    let newFilename = fileName;
-    if (newPathExists) newFilename = "copy_" + newFilename;
 
     const rs = fs.createReadStream(detPathToFile);
     rs.on("error", (err) => {
       console.error(err);
     });
 
-    const ws = fs.createWriteStream(path.join(detNewPath, newFilename));
+    const ws = fs.createWriteStream(path.join(detNewPath, fileName));
     ws.on("error", (err) => {
       console.error(err);
     });
     ws.on("close", () => {
     });
     rs.pipe(ws);
+  
+    if (!cp) await this.deleteFile(detPathToFile, currDir);
+  }
 
+  async deleteFile(pathToFile, currDir) {
+    const detFilePath = await DirMgmt.determinePath(currDir, pathToFile);
+    try {
+      await fsPromises.unlink(detFilePath);
+    } catch (error) {
+      CustomOutput.logError(error.message);
+    }
   }
 
 }

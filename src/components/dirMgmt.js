@@ -140,9 +140,10 @@ class DirMgmt {
   }
 
   static fixQuotes(location) {
-    let newLocation = location;
-    if (location.includes('"') || location.includes("'")) newLocation = location.replace(/['"]+/g, '');
-    return newLocation;
+    return location.replace(/['"]+/g, '');
+    // let newLocation = location;
+    // if (location.includes('"') || location.includes("'")) newLocation = location.replace(/['"]+/g, '');
+    // return newLocation;
   }
 
   static async validatePath(path) {

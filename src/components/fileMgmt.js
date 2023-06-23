@@ -14,8 +14,10 @@ class FileMgmt {
         await this.createFile(op.args[0], currPath);
         break;
       case 'rn':
+        await this.renameFile(op.args[0], currPath, op.args[1]);
         break;
       case 'cp':
+        await this.copyFile(op.args[0], op.args[1], currPath);
         break;
       case 'mv':
         break;
@@ -50,6 +52,43 @@ class FileMgmt {
     } finally {
       if (fd !== undefined) await fd.close();
     }
+  }
+
+  async renameFile(pathToFile, currDir, newName) {
+    const detFilePath = await DirMgmt.determinePath(currDir, pathToFile);
+    const newNamePath = DirMgmt.fixRenamePath(detFilePath, newName);
+    try {
+      if (!newName || newName.split('/').length > 1 || newName.split(path.sep).length > 1) throw new Error('The new name is incorrect');
+      await fsPromises.rename(detFilePath, newNamePath);
+    } catch (error) {
+      CustomOutput.logError(error.message);
+    }
+  }
+
+  async copyFile(pathToFile, newPath, currDir) {
+    const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
+    // console.log('detPathToFile', detPathToFile);
+    const detNewPath = await DirMgmt.determinePath(currDir, newPath);
+    // console.log('detNewPath', detNewPath);
+    const fileName = DirMgmt.getFilename(pathToFile);
+    // console.log('fileName', fileName);
+    const newPathExists = await DirMgmt.validatePath(path.join(detNewPath, fileName));
+    let newFilename = fileName;
+    if (newPathExists) newFilename = "copy_" + newFilename;
+
+    const rs = fs.createReadStream(detPathToFile);
+    rs.on("error", (err) => {
+      console.error(err);
+    });
+
+    const ws = fs.createWriteStream(path.join(detNewPath, newFilename));
+    ws.on("error", (err) => {
+      console.error(err);
+    });
+    ws.on("close", () => {
+    });
+    rs.pipe(ws);
+
   }
 
 }

@@ -93,13 +93,34 @@ class DirMgmt {
     return path.join(currDir, location);
   }
 
+  static fixRenamePath(detPath, newName) {
+    detPath = this.fixQuotes(detPath);
+    const newLocation = detPath.split('/').length > 1 ? detPath.split('/') : detPath.split(path.sep).length > 1 ? detPath.split(path.sep) : false;
+    if (newLocation) {
+      newLocation.pop();
+      const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
+      return path.join(joinedNewLocation, newName);
+    }
+    return newName;
+  }
+
+  static getFilename(location) {
+    location = this.fixQuotes(location);
+    const newLocation = location.split('/').length > 1 ? location.split('/') : location.split(path.sep).length > 1 ? location.split(path.sep) : false;
+    if (newLocation) {
+      const fileName = newLocation.pop(); 
+      return fileName ? fileName : false;
+    }
+    return location;
+  }
+
   //TODO: fix case sensitivity
   static async determinePath(currDir, location) {
     location = this.fixQuotes(location);
     if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
       const fullPathExists = await DirMgmt.validatePath(location);
       const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
-      if (pathExists) return path.join(currDir, location[0]);
+      if (pathExists) return path.join(currDir, location);
       else if (fullPathExists) return location;
       else throw new Error('The path is incorrect');
     } else {

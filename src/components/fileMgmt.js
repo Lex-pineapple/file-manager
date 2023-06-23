@@ -41,18 +41,15 @@ class FileMgmt {
 
   async createFile(pathToFile, currDir) {
     const toCreatePath = await DirMgmt.fixNewPath(currDir, pathToFile);
-    const fileExists = await DirMgmt.validatePath(toCreatePath);
-    fs.open(toCreatePath, 'wx', (err, fd) => {
-      if (err) {
-        if (err.code === 'EEXIST') CustomOutput.logError('File already exists');
-        else CustomOutput.logError(err.message);
-      }
-      if (fd) {
-        fs.close(fd, (err) => {
-          if (err) CustomOutput.logError(err.message);
-        })
-      }
-    })
+    let fd;
+    try {
+      fd = await fsPromises.open(toCreatePath, 'wx');
+    } catch (error) {
+      if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
+      else CustomOutput.logError(err.message);
+    } finally {
+      if (fd !== undefined) await fd.close();
+    }
   }
 
 }

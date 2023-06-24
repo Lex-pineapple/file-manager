@@ -81,11 +81,8 @@ class FileMgmt {
 
   async moveFile(pathToFile, newPath, currDir, cp) {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
-    // console.log('detPathToFile', detPathToFile);
     const detNewPath = await DirMgmt.determinePath(currDir, newPath);
-    // console.log('detNewPath', detNewPath);
     const fileName = DirMgmt.getFilename(pathToFile);
-    // console.log('fileName', fileName);
     const newPathExists = await DirMgmt.validatePath(path.join(detNewPath, fileName));
 
     const rs = fs.createReadStream(detPathToFile);

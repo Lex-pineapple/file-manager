@@ -21,7 +21,6 @@ class Input {
   }
 
   start() {
-    // dir.currDir = DirMgmt.initDir();
     CustomOutput.logPath(this.dir.currDir);
     CustomOutput.logColoredMessage('command \'help\'  to show list of commands', 'cyan');
     const rl = readline.createInterface({

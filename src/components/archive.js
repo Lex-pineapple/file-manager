@@ -20,11 +20,8 @@ class Archive {
 
   async compress(pathToFile, pathToDest, currDir) {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
-    // console.log('detPathToFile', detPathToFile);
     const detPathToDest = await DirMgmt.determinePath(currDir, pathToDest);
-    // console.log('detNewPath', detPathToDest);
     const fileName = DirMgmt.getFilename(pathToFile);
-    // console.log('fileName', fileName);
     const archvFileName = 'compressed_' + fileName + '.br';
     const brotli = zlib.createBrotliCompress();
 
@@ -42,18 +39,12 @@ class Archive {
     })
 
     const stream = rs.pipe(brotli).pipe(ws);
-    // stream.on('finish', () => {
-    //   CustomOutput.logColoredMessage('Compression finished', 'cyan');
-    // });
   }
 
   async decompress(pathToFile, pathToDest, currDir) {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
-    // console.log('detPathToFile', detPathToFile);
     const detPathToDest = await DirMgmt.determinePath(currDir, pathToDest);
-    // console.log('detNewPath', detPathToDest);
     const archvFileName = DirMgmt.getFilename(pathToFile);
-    // console.log('archvFileName', archvFileName);
     if (!archvFileName.endsWith('.br')) throw new Error('The chosen file is not an archive'); 
     let decomprFileName = archvFileName;
     if (decomprFileName.startsWith('compressed_')) decomprFileName = decomprFileName.replace('compressed_', '');
@@ -77,10 +68,6 @@ class Archive {
     stream.on('error', (err) => {
       console.error(err);
     })
-    
-    // stream.on('finish', () => {
-    //   CustomOutput.logColoredMessage('Decompression finished', 'cyan');
-    // });
   }
 }
 

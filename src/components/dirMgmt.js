@@ -87,16 +87,11 @@ class DirMgmt {
 
   static fixNewPath(currDir, location) {
     location = this.fixQuotes(location);
-    // const newLocation = location.split('/').length > 1 ? location.split('/') : location.split(path.sep).length > 1 ? location.split(path.sep) : false;
-    // if (newLocation) {
-    //   const fileName = newLocation.pop();
-    //   if (fileName) {
-    //     const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
-    //     const detPath = await this.determinePath(currDir, joinedNewLocation);
-    //     return detPath ? path.join(detPath, fileName) : false;
-    //   } return false;
-    // }
     return path.join(currDir, location);
+  }
+
+  static replaceBackslash(path) {
+    return path.replace("/", "\\");
   }
 
   static fixRenamePath(detPath, newName) {
@@ -120,7 +115,6 @@ class DirMgmt {
     return location;
   }
 
-  //TODO: fix case sensitivity
   static async determinePath(currDir, location) {
     if (currDir !== undefined && location !== undefined) {
       location = this.fixQuotes(location);
@@ -141,9 +135,6 @@ class DirMgmt {
 
   static fixQuotes(location) {
     return location.replace(/['"]+/g, '');
-    // let newLocation = location;
-    // if (location.includes('"') || location.includes("'")) newLocation = location.replace(/['"]+/g, '');
-    // return newLocation;
   }
 
   static async validatePath(path) {

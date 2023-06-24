@@ -1,4 +1,15 @@
 const commandSheet = {
+  'help': {
+    op_cat: 'help',
+    op_name: 'help',
+    args_num: 0,
+    args_type: null,
+    args: [],
+    details: {
+      description: 'display help for command',
+      args: null,
+    }
+  },
   'os': {
     op_cat: 'os',
     op_name: 'os',
@@ -9,7 +20,7 @@ const commandSheet = {
       description: 'print operating system info',
       args: {
         '--EOL': 'prints default system End-Of-Line',
-        '--cpus': 'prints host machine CPUs info (overall amount of CPUS plus model and clock rate (in GHz) for each of them)',
+        '--cpus': 'prints host machine CPUs info',
         '--homedir': 'print home directory',
         '--username': 'print current system user name',
         '--architecture': 'print CPU architecture for which Node.js binary has compiled',

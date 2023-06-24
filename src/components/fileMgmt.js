@@ -18,7 +18,6 @@ class FileMgmt {
         break;
       case 'cp':
         await this.moveFile(op.args[0], op.args[1], currPath, true);
-        // await this.copyFile(op.args[0], op.args[1], currPath);
         break;
       case 'mv':
         await this.moveFile(op.args[0], op.args[1], currPath, false);
@@ -37,24 +36,36 @@ class FileMgmt {
       const rs = fs.createReadStream(detPath, 'utf-8');
       let data = '';
       rs.on('data', chunk => data += chunk);
-      rs.on('end', () => process.stdout.write(data));
-      // rs.on('error', error =())
+      rs.on('error', (err) => {
+        CustomOutput.logError('Operation failed');
+      });
+      rs.on('end', () => {
+        process.stdout.write(data);
+        process.stdout.write('\n');
+      });
     } catch (error) {
       CustomOutput.logError(error.message);
     }
   }
 
+  checkFilename(filename) {
+    if (filename.includes('/') || filename.includes('\\')) return false;
+    return true;
+  }
+
   async createFile(pathToFile, currDir) {
-    const toCreatePath = await DirMgmt.fixNewPath(currDir, pathToFile);
-    let fd;
-    try {
-      fd = await fsPromises.open(toCreatePath, 'wx');
-    } catch (error) {
-      if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
-      else CustomOutput.logError(err.message);
-    } finally {
-      if (fd !== undefined) await fd.close();
-    }
+    if (this.checkFilename(pathToFile)) {
+      const toCreatePath = DirMgmt.fixNewPath(currDir, pathToFile);
+      let fd;
+      try {
+        fd = await fsPromises.open(toCreatePath, 'wx');
+      } catch (error) {
+        if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
+        else CustomOutput.logError(err.message);
+      } finally {
+        if (fd !== undefined) await fd.close();
+      }
+    } else CustomOutput.logError("The filename cannot contain '\\' or '/'");
   }
 
   async renameFile(pathToFile, currDir, newName) {

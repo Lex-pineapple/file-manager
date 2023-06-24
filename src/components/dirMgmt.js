@@ -18,7 +18,7 @@ class DirMgmt {
   }
 
   set currDir(path) {
-    this._currDir = path;
+    this._currDir = path.replace("/", "\\");
   }
 
   get currDir() {
@@ -85,17 +85,17 @@ class DirMgmt {
     }
   }
 
-  static async fixNewPath(currDir, location) {
+  static fixNewPath(currDir, location) {
     location = this.fixQuotes(location);
-    const newLocation = location.split('/').length > 1 ? location.split('/') : location.split(path.sep).length > 1 ? location.split(path.sep) : false;
-    if (newLocation) {
-      const fileName = newLocation.pop();
-      if (fileName) {
-        const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
-        const detPath = await this.determinePath(currDir, joinedNewLocation);
-        return detPath ? path.join(detPath, fileName) : false;
-      } return false;
-    }
+    // const newLocation = location.split('/').length > 1 ? location.split('/') : location.split(path.sep).length > 1 ? location.split(path.sep) : false;
+    // if (newLocation) {
+    //   const fileName = newLocation.pop();
+    //   if (fileName) {
+    //     const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
+    //     const detPath = await this.determinePath(currDir, joinedNewLocation);
+    //     return detPath ? path.join(detPath, fileName) : false;
+    //   } return false;
+    // }
     return path.join(currDir, location);
   }
 
@@ -147,7 +147,10 @@ class DirMgmt {
   }
 
   static async validatePath(path) {
-    return fsPromises.access(path, constants.R_OK).then(() => true).catch(() => false);
+    return fsPromises.access(path, constants.F_OK).then(() => true).catch((err) => {
+      if (err.code === 'EBUSY') throw new Error('The resource is busy');
+      else return false;
+    });
   }
 
   parseDirectoryList(files) {
@@ -201,8 +204,10 @@ class DirMgmt {
   async list() {
     try {
       const files = await fsPromises.readdir(this.currDir, { withFileTypes: true });
-      this.parseDirectoryList(files)
-      console.table(this.parseDirectoryList(files));
+      const parsedDir = this.parseDirectoryList(files);
+      if (parsedDir.length > 0) {
+        console.table(parsedDir);
+      } else process.stdout.write('The folder is empty\n');
     } catch (error) {
       CustomOutput.logError(error);
     }

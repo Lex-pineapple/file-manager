@@ -44,7 +44,7 @@ class FileMgmt {
         process.stdout.write('\n');
       });
     } catch (error) {
-      CustomOutput.logError(error.message);
+      CustomOutput.logError('Operation failed');
     }
   }
 
@@ -75,7 +75,7 @@ class FileMgmt {
       if (!newName || newName.split('/').length > 1 || newName.split(path.sep).length > 1) throw new Error('The new name is incorrect');
       await fsPromises.rename(detFilePath, newNamePath);
     } catch (error) {
-      CustomOutput.logError(error.message);
+      CustomOutput.logError('Operation failed');
     }
   }
 
@@ -89,12 +89,12 @@ class FileMgmt {
 
     const rs = fs.createReadStream(detPathToFile);
     rs.on("error", (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     });
 
     const ws = fs.createWriteStream(path.join(detNewPath, fileName));
     ws.on("error", (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     });
     ws.on("close", () => {
     });
@@ -108,7 +108,7 @@ class FileMgmt {
     try {
       await fsPromises.unlink(detFilePath);
     } catch (error) {
-      CustomOutput.logError(error.message);
+      CustomOutput.logError('Operation failed');
     }
   }
 

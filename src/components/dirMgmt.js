@@ -84,7 +84,7 @@ class DirMgmt {
       if (isDir) this.currDir = detDir;
       else CustomOutput.logError('This is not an accessible directory');
     } catch (error) {
-      CustomOutput.logError(error.message)
+      CustomOutput.logError('Operation failed');
     }
   }
 
@@ -215,7 +215,7 @@ class DirMgmt {
         console.table(parsedDir);
       } else process.stdout.write('The folder is empty\n');
     } catch (error) {
-      CustomOutput.logError(error);
+      CustomOutput.logError('Operation failed');
     }
   }
 }

@@ -11,7 +11,7 @@ class Hash {
       const hash = createHash('sha256').update(file).digest('hex');
       CustomOutput.logInfoMessage('Calculated hash', hash);
     } catch (err) {
-      CustomOutput.logError(err.message);
+      CustomOutput.logError('Operation failed');
     }
   }
 }

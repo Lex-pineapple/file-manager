@@ -27,12 +27,12 @@ class Archive {
 
     const rs = fs.createReadStream(detPathToFile);
     rs.on("error", (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     })
 
     const ws = fs.createWriteStream(path.join(detPathToDest, archvFileName));
     ws.on('error', (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     })
     ws.on('finish', () => {
       CustomOutput.logColoredMessage('Compression finished', 'cyan');
@@ -54,12 +54,12 @@ class Archive {
 
     const rs = fs.createReadStream(detPathToFile);
     rs.on("error", (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     })
 
     const ws = fs.createWriteStream(path.join(detPathToDest, decomprFileName));
     ws.on('error', (err) => {
-      console.error(err);
+      CustomOutput.logError('Operation failed');
     })
     ws.on('finish', () => {
       CustomOutput.logColoredMessage('Decompression finished', 'cyan');

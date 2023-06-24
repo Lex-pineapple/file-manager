@@ -76,7 +76,7 @@ class Input {
         } else await this.dir.delegate(op);
       } else throw new Error('Invalid input');
     } catch (error) {
-      CustomOutput.logError(error.message);
+      CustomOutput.logError('Operation failed');
     }
   }
 }

@@ -82,8 +82,10 @@ class FileMgmt {
   async moveFile(pathToFile, newPath, currDir, cp) {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
     const detNewPath = await DirMgmt.determinePath(currDir, newPath);
-    const fileName = DirMgmt.getFilename(pathToFile);
+    let fileName = DirMgmt.getFilename(pathToFile);
     const newPathExists = await DirMgmt.validatePath(path.join(detNewPath, fileName));
+  
+    if (cp) fileName = 'copy_' + fileName;
 
     const rs = fs.createReadStream(detPathToFile);
     rs.on("error", (err) => {
@@ -98,7 +100,7 @@ class FileMgmt {
     });
     rs.pipe(ws);
   
-    if (!cp) await this.deleteFile(detPathToFile, currDir);
+    if (!cp && !newPathExists) await this.deleteFile(detPathToFile, currDir);
   }
 
   async deleteFile(pathToFile, currDir) {

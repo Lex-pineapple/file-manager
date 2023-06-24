@@ -79,7 +79,10 @@ class DirMgmt {
 
   async browseDir(location) {
     try {
-      this.currDir = await DirMgmt.determinePath(this.currDir, location);
+      const detDir = await DirMgmt.determinePath(this.currDir, location);
+      const isDir = await this.isDir(detDir);
+      if (isDir) this.currDir = detDir;
+      else CustomOutput.logError('This is not an accessible directory');
     } catch (error) {
       CustomOutput.logError(error.message)
     }
@@ -96,7 +99,8 @@ class DirMgmt {
 
   static fixRenamePath(detPath, newName) {
     detPath = this.fixQuotes(detPath);
-    const newLocation = detPath.split('/').length > 1 ? detPath.split('/') : detPath.split(path.sep).length > 1 ? detPath.split(path.sep) : false;
+    detPath = this.replaceBackslash(detPath);
+    const newLocation = detPath.split('\\').length > 1 ? detPath.split('\\') : detPath.split(path.sep).length > 1 ? detPath.split(path.sep) : false;
     if (newLocation) {
       newLocation.pop();
       const joinedNewLocation = DirMgmt.fixBackSlash(newLocation);
@@ -118,7 +122,8 @@ class DirMgmt {
   static async determinePath(currDir, location) {
     if (currDir !== undefined && location !== undefined) {
       location = this.fixQuotes(location);
-      if (location.split('/').length > 1 || location.split(path.sep).length > 1) {
+      location = this.replaceBackslash(location);
+      if (location.split('\\').length > 1 || location.split(path.sep).length > 1) {
         const fullPathExists = await DirMgmt.validatePath(location);
         const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
         if (pathExists) return path.join(currDir, location);
@@ -190,6 +195,16 @@ class DirMgmt {
       else retLine.push({ name: item.name.slice(i, i+25) });
     }
     return retLine;
+  }
+
+  async isDir(path) {
+    try {
+      const stat = await fsPromises.lstat(path);
+      if (stat.isDirectory()) return true;
+      else return false;
+    } catch (error) {
+      CustomOutput.logError('Operation failed');
+    }
   }
 
   async list() {

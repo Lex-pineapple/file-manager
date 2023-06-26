@@ -59,6 +59,7 @@ class Archive {
       pipeline(
         rs,
         brotli,
+        // experimental, could cause issues comment if causes errors
         new stream.Transform({
           transform(chunk, encoding, callback) {
               totalBytes += chunk.length;

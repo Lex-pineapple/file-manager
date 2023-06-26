@@ -53,29 +53,13 @@ class Archive {
   
       const ws = fs.createWriteStream(path.join(detPathToDest, archvFileName));
       CustomOutput.logColoredMessage('Compression starting... please wait', 'cyan');
-      const initFileSize = await this.getFileSize(detPathToFile);
-      let space = 0;
-      let totalBytes = 0;
       pipeline(
         rs,
         brotli,
-        // experimental, could cause issues comment if causes errors
-        new stream.Transform({
-          transform(chunk, encoding, callback) {
-              totalBytes += chunk.length;
-              const temp = Math.round(totalBytes/initFileSize*10);
-              if (temp >= space) {
-                process.stdout.write(`\x1b[106m${'  '.padEnd(temp - space, '  ')}\x1b[0m`);
-                space = temp + 1;
-              }
-              this.push(chunk);
-              callback();
-          }
-        }),
         ws,
         (err) => {
           if (err) rej(err)
-          else res('\nCompression finished');
+          else res('Compression finished');
         }
       )
     })

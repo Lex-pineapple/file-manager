@@ -18,11 +18,15 @@ class FileMgmt {
       case 'rn':
         await this.renameFile(op.args[0], currPath, op.args[1]);
         break;
-      case 'cp':
-        await this.moveFile(op.args[0], op.args[1], currPath, true);
+      case 'cp': {
+        const msg = await this.moveFile(op.args[0], op.args[1], currPath, true);
+        if (msg) CustomOutput.logColoredMessage(msg, 'cyan');
+      }
         break;
-      case 'mv':
-        await this.moveFile(op.args[0], op.args[1], currPath, false);
+      case 'mv': {
+        const msg = await this.moveFile(op.args[0], op.args[1], currPath, false);
+        if (msg) CustomOutput.logColoredMessage(msg, 'cyan');
+      }
         break;
       case 'rm':
         await this.deleteFile(op.args[0], currPath);
@@ -64,6 +68,7 @@ class FileMgmt {
       let fd;
       try {
         fd = await fsPromises.open(toCreatePath, 'wx');
+        CustomOutput.logColoredMessage(`File '${toCreatePath}' has been created`, 'cyan');
       } catch (error) {
         if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
         else if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
@@ -84,6 +89,7 @@ class FileMgmt {
         throw err;
       } 
       await fsPromises.rename(detFilePath, newNamePath);
+      CustomOutput.logColoredMessage(`File has been successfuly renamed`, 'cyan');
     } catch (error) {
         if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
         else CustomOutput.logError('Operation failed');
@@ -98,25 +104,30 @@ class FileMgmt {
   
     if (cp) fileName = 'copy_' + fileName;
 
-    const rs = fs.createReadStream(detPathToFile);
-
-    const ws = fs.createWriteStream(path.join(detNewPath, fileName));
-
-    pipeline(
-      rs,
-      ws,
-      (err) => {
-        if (err) CustomOutput.logError('Operation failed');
-      }
-    )
+    return new Promise(async (res, rej) => {
+      const rs = fs.createReadStream(detPathToFile);
   
-    if (!cp && !newPathExists) await this.deleteFile(detPathToFile, currDir);
+      const ws = fs.createWriteStream(path.join(detNewPath, fileName));
+      CustomOutput.logColoredMessage(`Started ${cp ? 'copying' : 'moving'}...`, 'cyan');
+      pipeline(
+        rs,
+        ws,
+        (err) => {
+          if (err) rej(err);
+          else res(`File ${cp ? 'copied' : 'moved'} successfully`);
+        }
+      )
+    
+      if (!cp && !newPathExists) await this.deleteFile(detPathToFile, currDir);
+    })
+
   }
 
   async deleteFile(pathToFile, currDir) {
     const detFilePath = await DirMgmt.determinePath(currDir, pathToFile);
     try {
       await fsPromises.unlink(detFilePath);
+      CustomOutput.logColoredMessage(`File has been successfuly removed`, 'cyan');
     } catch (error) {
         if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
         else CustomOutput.logError('Operation failed');

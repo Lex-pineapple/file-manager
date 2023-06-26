@@ -3,6 +3,7 @@ import DirMgmt from "./dirMgmt.js";
 import fs from 'node:fs';
 import zlib from 'zlib';
 import CustomOutput from "../utils/CustomOutput.js";
+import { pipeline } from 'node:stream';
 
 class Archive {
   async delegate(op, currDir) {
@@ -31,14 +32,16 @@ class Archive {
     })
 
     const ws = fs.createWriteStream(path.join(detPathToDest, archvFileName));
-    ws.on('error', (err) => {
-      CustomOutput.logError('Operation failed');
-    })
-    ws.on('finish', () => {
-      CustomOutput.logColoredMessage('Compression finished', 'cyan');
-    })
 
-    const stream = rs.pipe(brotli).pipe(ws);
+    pipeline(
+      rs,
+      brotli,
+      ws,
+      (err) => {
+        if (err) CustomOutput.logError('Operation failed');
+        else CustomOutput.logColoredMessage('Compression finished', 'cyan');
+      }
+    )
   }
 
   async decompress(pathToFile, pathToDest, currDir) {
@@ -53,7 +56,6 @@ class Archive {
     let decomprFileName = archvFileName;
     if (decomprFileName.startsWith('compressed_')) decomprFileName = decomprFileName.replace('compressed_', '');
     if (decomprFileName.endsWith('.br')) decomprFileName = decomprFileName.replace(/.br$/g, '');
-    console.log('decomprFileName', decomprFileName);
     const brotli = zlib.createBrotliDecompress();
 
     const rs = fs.createReadStream(detPathToFile);
@@ -62,16 +64,15 @@ class Archive {
     })
 
     const ws = fs.createWriteStream(path.join(detPathToDest, decomprFileName));
-    ws.on('error', (err) => {
-      CustomOutput.logError('Operation failed');
-    })
-    ws.on('finish', () => {
-      CustomOutput.logColoredMessage('Decompression finished', 'cyan');
-    })
-    const stream = rs.pipe(brotli).pipe(ws);
-    stream.on('error', (err) => {
-      console.error(err);
-    })
+    pipeline(
+      rs,
+      brotli,
+      ws,
+      (err) => {
+        if (err) CustomOutput.logError('Operation failed');
+        else CustomOutput.logColoredMessage('Decompression finished', 'cyan');
+      }
+    )
   }
 }
 

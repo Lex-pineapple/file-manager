@@ -3,6 +3,8 @@ import DirMgmt from "./dirMgmt.js";
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import path from 'path';
+import { pipeline } from 'node:stream';
+
 
 class FileMgmt {
   async delegate(op, currPath) {
@@ -31,22 +33,24 @@ class FileMgmt {
   }
 
   async readFile(pathToFile, currDir) {
-    try {
-      const detPath = await DirMgmt.determinePath(currDir, pathToFile);
-      const rs = fs.createReadStream(detPath, 'utf-8');
-      let data = '';
-      rs.on('data', chunk => data += chunk);
-      rs.on('error', (err) => {
-        CustomOutput.logError('Operation failed');
-      });
-      rs.on('end', () => {
-        process.stdout.write(data);
-        process.stdout.write('\n');
-      });
-    } catch (error) {
-        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
-        else CustomOutput.logError('Operation failed');
-    }
+    return new Promise(async (res, rej) => {
+      try {
+        const detPath = await DirMgmt.determinePath(currDir, pathToFile);
+        const rs = fs.createReadStream(detPath, 'utf-8');
+        let data = '';
+        rs.on('data', chunk => data += chunk);
+        rs.on('error', (err) => {
+          CustomOutput.logError('Operation failed');
+        });
+        rs.on('end', () => {
+          process.stdout.write(data);
+          process.stdout.write('\n');
+          res();
+        });
+      } catch (error) {
+          rej(error);
+      }
+    });
   }
 
   checkFilename(filename) {
@@ -95,17 +99,16 @@ class FileMgmt {
     if (cp) fileName = 'copy_' + fileName;
 
     const rs = fs.createReadStream(detPathToFile);
-    rs.on("error", (err) => {
-      CustomOutput.logError('Operation failed');
-    });
 
     const ws = fs.createWriteStream(path.join(detNewPath, fileName));
-    ws.on("error", (err) => {
-      CustomOutput.logError('Operation failed');
-    });
-    ws.on("close", () => {
-    });
-    rs.pipe(ws);
+
+    pipeline(
+      rs,
+      ws,
+      (err) => {
+        if (err) CustomOutput.logError('Operation failed');
+      }
+    )
   
     if (!cp && !newPathExists) await this.deleteFile(detPathToFile, currDir);
   }

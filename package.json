@@ -1,0 +1,21 @@
+{
+  "name": "file-manager",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "demo": "node src/index.js --username=DefaultName"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lex-pineapple/file-manager.git"
+  },
+  "author": "Lex-pineapple",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lex-pineapple/file-manager/issues"
+  },
+  "homepage": "https://github.com/Lex-pineapple/file-manager#readme"
+}

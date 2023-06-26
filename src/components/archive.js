@@ -45,7 +45,11 @@ class Archive {
     const detPathToFile = await DirMgmt.determinePath(currDir, pathToFile);
     const detPathToDest = await DirMgmt.determinePath(currDir, pathToDest);
     const archvFileName = DirMgmt.getFilename(pathToFile);
-    if (!archvFileName.endsWith('.br')) throw new Error('The chosen file is not an archive'); 
+    if (!archvFileName.endsWith('.br')) {
+      const err = new Error('The chosen file is not an archive');
+      err.code = 'WRONG_EXT';
+      throw err;
+    }
     let decomprFileName = archvFileName;
     if (decomprFileName.startsWith('compressed_')) decomprFileName = decomprFileName.replace('compressed_', '');
     if (decomprFileName.endsWith('.br')) decomprFileName = decomprFileName.replace(/.br$/g, '');

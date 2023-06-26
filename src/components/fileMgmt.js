@@ -44,7 +44,8 @@ class FileMgmt {
         process.stdout.write('\n');
       });
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 
@@ -60,8 +61,9 @@ class FileMgmt {
       try {
         fd = await fsPromises.open(toCreatePath, 'wx');
       } catch (error) {
-        if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
-        else CustomOutput.logError(err.message);
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else if (error.code === 'EEXIST') CustomOutput.logError('File already exists');
+        else CustomOutput.logError('Operation failed');
       } finally {
         if (fd !== undefined) await fd.close();
       }
@@ -72,10 +74,15 @@ class FileMgmt {
     const detFilePath = await DirMgmt.determinePath(currDir, pathToFile);
     const newNamePath = DirMgmt.fixRenamePath(detFilePath, newName);
     try {
-      if (!newName || newName.split('/').length > 1 || newName.split(path.sep).length > 1) throw new Error('The new name is incorrect');
+      if (!newName || newName.split('/').length > 1 || newName.split(path.sep).length > 1) {
+        const err = new Error('The new name is incorrect');
+        err.code = 'WRONG_NAME';
+        throw err;
+      } 
       await fsPromises.rename(detFilePath, newNamePath);
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 
@@ -108,7 +115,8 @@ class FileMgmt {
     try {
       await fsPromises.unlink(detFilePath);
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 

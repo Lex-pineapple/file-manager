@@ -10,8 +10,9 @@ class Hash {
       const file = await fsPromises.readFile(detPathToFile);
       const hash = createHash('sha256').update(file).digest('hex');
       CustomOutput.logInfoMessage('Calculated hash', hash);
-    } catch (err) {
-      CustomOutput.logError('Operation failed');
+    } catch (error) {
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 }

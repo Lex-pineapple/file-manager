@@ -74,9 +74,14 @@ class Input {
         } else if (commandSheet[op.command].op_cat === 'help') {
           printHelpMemo(commandSheet);
         } else await this.dir.delegate(op);
-      } else throw new Error('Invalid input');
+      } else {
+        const err = new Error('Invalid input');
+        err.code = 'INV_INP';
+        throw err;
+      }
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 }

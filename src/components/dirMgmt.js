@@ -84,7 +84,8 @@ class DirMgmt {
       if (isDir) this.currDir = detDir;
       else CustomOutput.logError('This is not an accessible directory');
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 
@@ -128,14 +129,26 @@ class DirMgmt {
         const pathExists = await DirMgmt.validatePath(path.join(currDir, location));
         if (pathExists) return path.join(currDir, location);
         else if (fullPathExists) return location;
-        else throw new Error('The path is incorrect');
+        else {
+          const err = new Error('The path is incorrect');
+          err.code = 'WRONG_PATH';
+          throw err;
+        }
       } else {
         const newPath = path.join(currDir, location);
         const pathExists = await DirMgmt.validatePath(newPath);
         if (pathExists) return newPath;
-        else throw new Error('The path is incorrect');
+        else {
+          const err = new Error('The path is incorrect');
+          err.code = 'WRONG_PATH';
+          throw err;
+        }
       }
-    } else throw new Error('The path is incorrect');
+    } else {
+      const err = new Error('The path is incorrect');
+      err.code = 'WRONG_PATH';
+      throw err;
+    }
   }
 
   static fixQuotes(location) {
@@ -144,7 +157,7 @@ class DirMgmt {
 
   static async validatePath(path) {
     return fsPromises.access(path, constants.F_OK).then(() => true).catch((err) => {
-      if (err.code === 'EBUSY') throw new Error('The resource is busy');
+      if (err.code === 'EBUSY') throw err;
       else return false;
     });
   }
@@ -203,7 +216,8 @@ class DirMgmt {
       if (stat.isDirectory()) return true;
       else return false;
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 
@@ -215,7 +229,8 @@ class DirMgmt {
         console.table(parsedDir);
       } else process.stdout.write('The folder is empty\n');
     } catch (error) {
-      CustomOutput.logError('Operation failed');
+        if (error.code === 'WRONG_PATH' || error.code === 'EBUSY' || error.code === 'WRONG_EXT' ||  error.code === 'WRONG_NAME' || error.code === 'INV_INP') CustomOutput.logError(error.message);
+        else CustomOutput.logError('Operation failed');
     }
   }
 }
